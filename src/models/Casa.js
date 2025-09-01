@@ -1,5 +1,10 @@
 const mongoose = require('mongoose');
 
+/* Estrutura da Casa
+ * -----------------
+ * nome - Nome da Casa (identificador único)
+ * pontos - Quantidade de pontos da casa na arrecadação
+*/
 const casaSchema = new mongoose.Schema({
   nome: {
     type: String,
@@ -10,10 +15,6 @@ const casaSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  ativa: {
-    type: Boolean,
-    default: true
-  }
 }, {
   timestamps: true
 });

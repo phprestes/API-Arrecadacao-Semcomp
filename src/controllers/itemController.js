@@ -3,11 +3,13 @@ const Tier = require('../models/Tier');
 const calculadoraService = require('../services/calculadoraService');
 
 const itemController = {
+  // 1. Cria o item
   async criarItem(req, res) {
     try {
-      const { nome, valorFixo, tierId } = req.body;
+      const { nome, valorFixo, quantidadeMax, tierNivel } = req.body;
       
-      const tier = await Tier.findById(tierId);
+      // Cria o item baseado no número do tier informado na requisição
+      const tier = await Tier.findOne({ nivel: tierNivel });
       if (!tier) {
         return res.status(404).json({ error: 'Tier não encontrado' });
       }
@@ -15,15 +17,9 @@ const itemController = {
       const item = new Item({
         nome,
         valorFixo,
-        tierAtual: tierId,
-        multiplicadorAtual: tier.multiplicadorInicial,
-        maxDoacoesTier: tier.maxDoacoes
+        quantidadeMax,
+        tierNivel
       });
-
-      item.valorFinal = calculadoraService.calcularValorFinal(
-        item.valorFixo, 
-        item.multiplicadorAtual
-      );
 
       await item.save();
       res.status(201).json(item);
@@ -32,21 +28,29 @@ const itemController = {
     }
   },
 
+  // 2. Lista todos os itens
   async listarItens(req, res) {
     try {
-      const itens = await Item.find().populate('tierAtual');
+      const itens = await Item.find()
       res.json(itens);
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
   },
 
+  // 3. Obter um pelo nome
   async obterItem(req, res) {
     try {
-      const item = await Item.findById(req.params.id).populate('tierAtual');
+      const { nome } = req.params;
+
+      const item = await Item.findOne({ 
+        nome: { $regex: new RegExp(`^${nome.trim()}$`, 'i') } 
+      });
+
       if (!item) {
         return res.status(404).json({ error: 'Item não encontrado' });
       }
+
       res.json(item);
     } catch (error) {
       res.status(500).json({ error: error.message });

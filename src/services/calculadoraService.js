@@ -1,30 +1,27 @@
-class CalculadoraService {
-  // Calcula o multiplicador atual baseado no polinômio de decaimento
-  calcularMultiplicador(tier, quantidadeDoada, maxDoacoesTier) {
-    const [a, b, c] = tier.polinomioDecaimento;
-    const x = quantidadeDoada / maxDoacoesTier;
-    
-    // Fórmula: multiplicador = a*x² + b*x + c
-    // Onde x é a proporção de doações em relação ao máximo
-    let multiplicador = a * Math.pow(x, 2) + b * x + c;
-    
-    // Garante que o multiplicador fique entre o mínimo e o inicial
-    multiplicador = Math.max(
-      tier.multiplicadorMinimo,
-      Math.min(tier.multiplicadorInicial, multiplicador)
-    );
-    
-    return parseFloat(multiplicador.toFixed(2));
-  }
+const Polynomial = require('polynomial');
 
-  // Calcula o valor final do item
-  calcularValorFinal(valorFixo, multiplicador) {
-    return parseFloat((valorFixo * multiplicador).toFixed(2));
+class CalculadoraService {
+  // Calcula o valor do item
+  calcularMultiplicador(item, tier) {
+    // Calcula o multiplicador atual baseado no polinômio de decaimento
+    const coeficientes = tier.polinomioDecaimento;
+    const x = tier.multiplicadorMinimo - item.quantidadeTier / item.quantidadeMax;
+    
+    // Fórmula: multiplicador = polinômio de grau n de variável x 
+    // Onde x é a proporção de doações em relação ao máximo
+    const poly = new Polynomial(coeficientes.reverse());
+    let multiplicador = poly.eval(x);
+    console.log(multiplicador);
+    
+    // Garante que o multiplicador fique acima do mínimo
+    multiplicador = Math.max(tier.multiplicadorMinimo, multiplicador);
+
+    return parseFloat(multiplicador).toFixed(2);
   }
 
   // Verifica se o item precisa ser rebaixado
-  verificarRebaixamento(item, tier) {
-    return item.quantidadeDoada >= item.maxDoacoesTier;
+  verificarRebaixamento(item) {
+    return item.quantidadeTier >= item.quantidadeMax;
   }
 
   // Encontra o próximo tier (nível inferior)

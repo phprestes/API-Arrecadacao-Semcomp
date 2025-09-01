@@ -1,5 +1,11 @@
 const mongoose = require('mongoose');
 
+/* Estrutura da Doação
+ * -----------------
+ * item - Item o qual a doação foi feita
+ * casa - Qual casa foi responsável pela doação
+ * quantidade - Quantos itens foram doados
+*/
 const doacaoSchema = new mongoose.Schema({
   item: {
     type: mongoose.Schema.Types.ObjectId,
@@ -15,10 +21,6 @@ const doacaoSchema = new mongoose.Schema({
     type: Number,
     required: true,
     min: 1
-  },
-  pontosGerados: {
-    type: Number,
-    required: true
   },
   multiplicadorAplicado: {
     type: Number,
